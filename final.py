@@ -179,23 +179,27 @@ def roc_curve(probabilities, labels):
 def calculate_probabilities(X_train_1, y_train, X_test_1):
 
     y = np.array(np.ravel(y_train)).astype(int)
-    clf = LogisticRegressionCV(cv=5, random_state=0,multi_class='multinomial').fit(X_train, y)
-    probs = clf.predict_proba(X_test)
+    clf = LogisticRegressionCV(cv=5, random_state=0,multi_class='multinomial').fit(X_train_1, y)
+    probs = clf.predict_proba(X_test_1)
     predict = clf.predict(X_test_1)
     coefs = clf.coef_
     probreturn = probs[:,1]
     return coefs, probreturn
 
-def plotter (y_test, X_cols, y_Cols, figname, probs):
-    tpr, fpr, thresholds , profit= roc_curve(probs, y_test)
+def plotter (y_test, X_cols, y_Cols, figname, probreturn):
+    tpr, fpr, thresholds , profit= roc_curve(probreturn, y_test)
 
     fig, ax1 = plt.subplots(figsize=(12, 4))
     ax2 = ax1.twinx()
+    ax3 = ax1.twinx()
     ax1.plot(fpr, tpr, 'b')
     ax2.plot(thresholds, profit, 'r')
+    x = np.linspace(0, 1, len(thresholds))
+    ax3.plot(x,x, linestyle='--')
     ax1.set_xlabel("False Positive Rate (1 - Specificity)")
     ax1.set_ylabel("True Positive Rate (Sensitivity, Recall)", color = 'b')
     ax2.set_ylabel("Profit", color='r')
+    ax3.set_yticklabels([])
     plt.title("ROC plot of " + str(X_cols))
     plt.savefig(figname + '.png')
     plt.show()
@@ -231,7 +235,7 @@ def stackdf (df):
         RMSE_dict[str(i)+"_"+alg.__class__.__name__] = alg_rmse # This is a fancy trick to get the class names!
     return df.from_dict(RMSE_dict, orient='index', columns=['RMSE']).sort_values(by='RMSE') # Return sorted DF
 
-def model(X_train, y_train):
+def model(X_train, y_train, X_test):
     y = np.array(np.ravel(y_train)).astype(int)
     clf = LogisticRegressionCV(cv=5, random_state=0,multi_class='multinomial').fit(X_train, y)
     probs = clf.predict_proba(X_test)
@@ -257,7 +261,7 @@ def confusionmatrix(df, probs, threshold=[0.15, 0.25, 0.45, 0.70]):
 def main(X_col_input,figname):
     #autofinance = load_csv()
     y_col_input = ['Result02']
-    X_col_input = x
+    X_col_input = ['Variable01','Variable03','Variable05','Variable07','Variable08','Variable09','Variable10','Variable11','Region_MW','Region_NE','Region_P','Region_S','Region_WE']
     cb = costbenefit()
     autofinance = load_csv_2()
     df = fill_blanks(autofinance)
@@ -267,35 +271,10 @@ def main(X_col_input,figname):
     X_train, X_test, y_train, y_test = splitapply(X, y)
     X_train_1, X_test_1=standardize(X_train, X_test, X_col_input)
     #err, probs = k_fold_linear(X_train_1, y_train, X_col)
-    coefs, probreturn = calculate_probabilities(X_train_1, y_train, X_test_1)
+    probreturn = model(X_train, y_train, X_test)
     plotter(y_test, X_col, y_col, figname, probreturn)
     cfmatrix = confusionmatrix(y_test, probreturn)
     return cfmatrix
-
-def loop_attempt(X_col_input,figname):
-    #autofinance = load_csv()
-    profit = []
-    A = generator(['Variable01', 'Variable03', 'Variable05', 'Variable07', 'Variable08',
-           'Variable09', 'Variable10', 'Variable11', 'Region_MT', 'Region_MW',
-           'Region_NE', 'Region_P', 'Region_PL', 'Region_S', 'Region_WE'])
-    stop = len(A)
-    for i in range(stop):
-        j = len(A[i])
-        for i2 in range(j):
-            X_col_input =(A[i][i2])
-            y_col_input = ['Result02']
-
-            cb = costbenefit()
-            autofinance = load_csv_2()
-            df = fill_blanks(autofinance)
-            af_mod = getdummies(df)
-            X_col, y_col = X_y_columns(X_col = X_col_input, y_col= y_col_input)
-            X, y = split_X_y_cols(af_mod, X_col, y_col)
-            X_train, X_test, y_train, y_test = splitapply(X, y)
-            X_train_1, X_test_1=standardize(X_train, X_test, X_col_input)
-            #err, probs = k_fold_linear(X_train_1, y_train, X_col)
-            profit = calculate_probabilities_2(X_train, X_test, y_train, y_test, X_col, y_col)
-
 
     """pd.DataFrame(data=KNN(5).fit_transform(df.iloc[:10000].select_dtypes(exclude='object')), columns=df.iloc[:10000].select_dtypes(exclude='object').columns, index=df.iloc[:10000].select_dtypes(exclude='object').index)"""
 

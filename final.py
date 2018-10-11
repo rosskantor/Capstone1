@@ -214,7 +214,7 @@ def plotter (y_test, X_cols, y_Cols, figname, probreturn, x_short_identifier):
     ax1.set_ylabel("True Positive Rate (Sensitivity, Recall)", color = 'b')
     ax2.set_ylabel("Profit", color='r')
     ax3.set_yticklabels([])
-    plt.title("ROC and Profitability plot of features \n " + str(x_short_identifier))
+    plt.title("ROC and Profitability plot of features \n " + str(x_short_identifier) + " Max Profit " + str(max(profit)))
     plt.savefig(figname + '.png')
     plt.show()
     return  profit

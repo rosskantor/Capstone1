@@ -48,11 +48,15 @@ Can I predict loan originations given input data? A logistic model was developed
 
 When all variables (except Region_MT) are included the profit matrix and ROC curve are displayed below.
 
-![Profit Model](Images/Figure_2.png)
+![Profit Model](MaxProf1.png)
 
-![Profit Model](Images/Figure_3.png)
+![Profit Model](MaxProf2.png)
 
-![Profit Model](Images/Figure_4.png)
+![Profit Model](MaxProf3.png)
+
+Confusion Matrix (All inputs p = [0.15, 0.25, 0.45. 0.70])
+
+This confusion matrix tells the whole story.  At low confidence the company calls many leads, accepting a false positive to true positive ratio of 2:1.  This leads to a lot of time (calling customers, preparing documentation, following up) wasted on customers who will never ultimately agree to a loan.  It also leads to your most profitable business.
 
 ![Confusion Matrix (All inputs)](Confuse.png)
 

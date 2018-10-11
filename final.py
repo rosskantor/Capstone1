@@ -1,5 +1,7 @@
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+from statsmodels.tools import add_constant
+from statsmodels.discrete.discrete_model import Logit
 import pandas as pd
 import seaborn as sns
 import numpy as np
@@ -30,8 +32,19 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 def X_y_columns(X_col=['Variable01', 'Variable03', 'Variable05', 'Variable07', 'Variable08',
        'Variable09', 'Variable10', 'Variable11', 'Region_MW',
        'Region_NE', 'Region_P', 'Region_S', 'Region_WE']
-       , y_col=['Result01']):
+       , y_col=['Result02']):
         return X_col, y_col
+
+def dict_X_cols(X=[1,3,5,7,8,10,11,'MW','S','P', 'N', 'W']):
+    X_col={1:'Variable01', 3:'Variable03', 5:'Variable05', 7:'Variable07', 8:'Variable08',
+    9:'Variable09', 10:'Variable10', 11:'Variable11', 'MW':'Region_MW', 'MT':'Region_MT',
+    'N':'Region_NE', 'P':'Region_P', 'S':'Region_S', 'W':'Region_WE'}
+    y_col=['Result02']
+    X_col_input = [X_col[i] for i in X]
+    y_col_input = y_col
+    return X_col_input, y_col_input
+
+
 def load_csv():
             autofinances = pd.read_csv('RossData_20181001.csv')
 
@@ -186,10 +199,11 @@ def calculate_probabilities(X_train_1, y_train, X_test_1):
     probreturn = probs[:,1]
     return coefs, probreturn
 
-def plotter (y_test, X_cols, y_Cols, figname, probreturn):
+def plotter (y_test, X_cols, y_Cols, figname, probreturn, x_short_identifier):
     tpr, fpr, thresholds , profit= roc_curve(probreturn, y_test)
 
-    fig, ax1 = plt.subplots(figsize=(12, 4))
+    fig, ax1 = plt.subplots(figsize=(13, 6))
+    plt.rcParams.update({'font.size': 18})
     ax2 = ax1.twinx()
     ax3 = ax1.twinx()
     ax1.plot(fpr, tpr, 'b')
@@ -200,7 +214,7 @@ def plotter (y_test, X_cols, y_Cols, figname, probreturn):
     ax1.set_ylabel("True Positive Rate (Sensitivity, Recall)", color = 'b')
     ax2.set_ylabel("Profit", color='r')
     ax3.set_yticklabels([])
-    plt.title("ROC plot of " + str(X_cols))
+    plt.title("ROC and Profitability plot of features \n " + str(x_short_identifier))
     plt.savefig(figname + '.png')
     plt.show()
     return  profit
@@ -258,10 +272,15 @@ def confusionmatrix(df, probs, threshold=[0.15, 0.25, 0.45, 0.70]):
         del dfIn
         del dfOut
     return cfmatrix
-def main(X_col_input,figname):
-    #autofinance = load_csv()
-    y_col_input = ['Result02']
-    X_col_input = ['Variable01','Variable03','Variable05','Variable07','Variable08','Variable09','Variable10','Variable11','Region_MW','Region_NE','Region_P','Region_S','Region_WE']
+
+def regressionoutput(X_train, y_train):
+    X = X_train
+    X_const = add_constant(X, prepend=True)
+    y = y_train
+    logit_model = Logit(y, X_const).fit()
+    print(logit_model.summary())
+def main(x_short_identifier,figname='Default'):
+    X_col_input, y_col_input = dict_X_cols(x_short_identifier)
     cb = costbenefit()
     autofinance = load_csv_2()
     df = fill_blanks(autofinance)
@@ -270,9 +289,9 @@ def main(X_col_input,figname):
     X, y = split_X_y_cols(af_mod, X_col, y_col)
     X_train, X_test, y_train, y_test = splitapply(X, y)
     X_train_1, X_test_1=standardize(X_train, X_test, X_col_input)
-    #err, probs = k_fold_linear(X_train_1, y_train, X_col)
     probreturn = model(X_train, y_train, X_test)
-    plotter(y_test, X_col, y_col, figname, probreturn)
+    plotter(y_test, X_col, y_col, figname, probreturn, x_short_identifier)
+    #regressionoutput(X_train, y_train)
     cfmatrix = confusionmatrix(y_test, probreturn)
     return cfmatrix
 
@@ -284,7 +303,7 @@ def main(X_col_input,figname):
        Region_MT, Region_MW, Region_NE, Region_P, Region_PL,
        Region_S, Region_WE'
 
-        y, X = dmatrices('Result02 ~ Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 +  Variable09 +  Variable10 +  Variable11 +  Region_MW +  Region_NE +  Region_P +  Region_PL + Region_S +  Region_WE', r, return_type='dataframe')
+        y, X = dmatrices('Result02 ~ Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 +  Variable09 +  Variable10 +  Variable11 +  Region_MW +  Region_NE +  Region_P +  Region_S +  Region_WE', r, return_type='dataframe')
 
         y, X = dmatrices('Result02 ~ Variable01, Variable02', r, return_type='dataframe'
 

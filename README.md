@@ -27,7 +27,7 @@ States were broken divided into region six regions each of which was assigned to
 
 Below is an example of the distribution of loan amount to approvals.
 
-![Loan Size to Purchase](Images/Loan Size to Purchase.png)
+![Loan Size to Purchase](Loan Size to Purchase.png)
 
 ![Correlation](Images/Corr2.png)
 ![Correlation](Images/Corr1.png)
@@ -47,13 +47,14 @@ Can I predict loan originations given input data? A logistic model was developed
 ![Cost Benefit](Cost.png)
 
 When all variables (except Region_MT) are included the profit matrix and ROC curve are displayed below.
-![Profit Model](Figure_1.png)
+
+![Profit Model](Fig_1.png)
 
 ![Confusion Matrix (All inputs)](Confuse.png)
 
 Conclusion
 
-Supplied inputs are not highly correlated with with borrower preferences.  Borrower behavior for this firm appears to be random.  Credit score, loan amount, age, etc are not good predictors of borrower preference.
+This model outperforms random guesses.  Utilizing the model will allow the institution to categorize incoming leads to into more likely and less likely to perform categories.  A right to left utilization of the model (picking the most likely to succeed) will lead to better business results.
 
 Lessons Learned
 

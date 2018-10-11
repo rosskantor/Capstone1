@@ -24,10 +24,12 @@ from sklearn.linear_model import LogisticRegressionCV
 import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 from itertools import combinations
+from patsy import dmatrices
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 def X_y_columns(X_col=['Variable01', 'Variable03', 'Variable05', 'Variable07', 'Variable08',
-       'Variable09', 'Variable10', 'Variable11', 'Region_MT', 'Region_MW',
-       'Region_NE', 'Region_P', 'Region_PL', 'Region_S', 'Region_WE']
+       'Variable09', 'Variable10', 'Variable11', 'Region_MW',
+       'Region_NE', 'Region_P', 'Region_S', 'Region_WE']
        , y_col=['Result01']):
         return X_col, y_col
 def load_csv():
@@ -64,8 +66,8 @@ def getdummies(df):
 def splitapply(X, y):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     return X_train, X_test, y_train, y_test
-def vif(X):
-    y, X = dmatrices('Result02 ~ Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 +  Variable09 +  Variable10 +  Variable11 +  Region_MW +  Region_NE +  Region_P +  Region_PL + Region_S +  Region_WE', r, return_type='dataframe')
+def vif():
+    y, X = dmatrices('Result02 ~ Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 +  Variable09 +  Variable10 +  Variable11 +  Region_MW +  Region_NE +  Region_P + Region_S +  Region_WE', r, return_type='dataframe')
     vif = pd.DataFrame()
     vif["VIF Factor"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
     vif["features"] = X.columns
@@ -124,7 +126,10 @@ def splitdf (df):
     df = y2.merge(dfReg, left_index=True, right_index=True)
     df.to_csv('RossData_imputed.csv')
 def missingdata(df):
-    msno.matrix(df)
+    a = msno.matrix(df, figsize=(16,7), fontsize=(8))
+    a.plot()
+    plt.savefig('MissingData' + '.png')
+    plt.show()
 def roc_curve(probabilities, labels):
     '''
     INPUT: numpy array, numpy array
@@ -174,18 +179,18 @@ def roc_curve(probabilities, labels):
 def calculate_probabilities(X_train_1, y_train, X_test_1):
 
     y = np.array(np.ravel(y_train)).astype(int)
-    clf = LogisticRegressionCV(cv=5, random_state=0,multi_class='multinomial').fit(X_train_1, y)
-    probs = clf.predict_proba(X_test_1)
+    clf = LogisticRegressionCV(cv=5, random_state=0,multi_class='multinomial').fit(X_train, y)
+    probs = clf.predict_proba(X_test)
+    predict = clf.predict(X_test_1)
     coefs = clf.coef_
     probreturn = probs[:,1]
     return coefs, probreturn
 
-def plotter (y_train, X_cols, y_Cols, figname, probs):
-    tpr, fpr, thresholds , profit= roc_curve(probs, y_train)
+def plotter (y_test, X_cols, y_Cols, figname, probs):
+    tpr, fpr, thresholds , profit= roc_curve(probs, y_test)
 
-    fig, ax1 = plt.subplots()
+    fig, ax1 = plt.subplots(figsize=(12, 4))
     ax2 = ax1.twinx()
-
     ax1.plot(fpr, tpr, 'b')
     ax2.plot(thresholds, profit, 'r')
     ax1.set_xlabel("False Positive Rate (1 - Specificity)")
@@ -229,12 +234,30 @@ def stackdf (df):
 def model(X_train, y_train):
     y = np.array(np.ravel(y_train)).astype(int)
     clf = LogisticRegressionCV(cv=5, random_state=0,multi_class='multinomial').fit(X_train, y)
-    probs = clf.predict_proba(X_train)
+    probs = clf.predict_proba(X_test)
     return probs[:, 1]
+def confusionmatrix(df, probs, threshold=[0.15, 0.25, 0.45, 0.70]):
+    df['Probs'] = probs
+    cfmatrix = []
+    for i in range(len(threshold)):
+        dfIn = df[df['Probs'] > threshold[i]]
+        dfOut = df[df['Probs'] <= threshold[i]]
+
+        TP = int(dfIn.iloc[:,0].sum())
+        FP = int(len(dfIn) - TP)
+
+        FN = int(dfOut.iloc[:,0].sum())
+        TF = int(len(dfOut) - FN)
+        tup = TP, FP, FN, TF
+        cfmatrix.append(tup)
+
+        del dfIn
+        del dfOut
+    return cfmatrix
 def main(X_col_input,figname):
     #autofinance = load_csv()
     y_col_input = ['Result02']
-    #X_col_input = ['Variable03', 'Variable07']
+    X_col_input = x
     cb = costbenefit()
     autofinance = load_csv_2()
     df = fill_blanks(autofinance)
@@ -244,9 +267,10 @@ def main(X_col_input,figname):
     X_train, X_test, y_train, y_test = splitapply(X, y)
     X_train_1, X_test_1=standardize(X_train, X_test, X_col_input)
     #err, probs = k_fold_linear(X_train_1, y_train, X_col)
-    coefs, probreturn = calculate_probabilities(X_train, y_train)
-    plotter(y_train, X_col, y_col, figname, probreturn)
-
+    coefs, probreturn = calculate_probabilities(X_train_1, y_train, X_test_1)
+    plotter(y_test, X_col, y_col, figname, probreturn)
+    cfmatrix = confusionmatrix(y_test, probreturn)
+    return cfmatrix
 
 def loop_attempt(X_col_input,figname):
     #autofinance = load_csv()

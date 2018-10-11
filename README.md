@@ -48,7 +48,7 @@ Can I predict loan originations given input data? A logistic model was developed
 
 When all variables (except Region_MT) are included the profit matrix and ROC curve are displayed below.
 
-![Profit Model](Fig_2.png)
+![Profit Model](Images/Figure_2.png)
 
 ![Confusion Matrix (All inputs)](Confuse.png)
 

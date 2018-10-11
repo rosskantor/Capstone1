@@ -42,18 +42,18 @@ Can I predict loan originations given input data? A logistic model was developed
 
 
 
-![Cost Benefit](Cost Benefit.png)
+![Cost Benefit](Cost.png)
 
 When all variables (except Region_MT) are included the profit matrix and ROC curve are displayed below.
 ![Profit Model](Images/All Variables.png)
 
-![Confusion Matrix (All inputs)](Confusion Matrix 1.png)
+![Confusion Matrix (All inputs)](Confuse.png)
 
 Conclusion
 
 Supplied inputs are not highly correlated with with borrower preferences.  Borrower behavior for this firm appears to be random.  Credit score, loan amount, age, etc are not good predictors of borrower preference.
 
-![VIF](Confusion Matrix 1.png)
+![VIF](Confuse.png)
 
 Lessons Learned
 

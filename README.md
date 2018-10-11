@@ -57,7 +57,7 @@ Conclusion
 
 Supplied inputs are not highly correlated with with borrower preferences.  Borrower behavior for this firm appears to be random.  Credit score, loan amount, age, etc are not good predictors of borrower preference.
 
-![VIF](Images/VIF.png)
+![VIF](Images/Confusion Matrix 1.png)
 
 Lessons Learned
 

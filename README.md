@@ -8,7 +8,7 @@ The Set Up Problem
 Data provided for this project is not identified by name or purpose.  All column headings are titled Variable1, Variable2, ..., Result01. An educated guess easily distinguishes a few fields.  Variable 6 is clearly a state column, Variable 3 is categorical, Variable 5 is credit score, Variable11 is probably loan amount and Variable07 may be primary borrower age.
 
 
-![Missing Data Image](\Images\MissingData.png)
+![Missing Data Image](Images/MissingData.png)
 
 
 Data is sparse for variables 2, 7-11.  Variable 5 is missing a few rows.

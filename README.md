@@ -42,10 +42,6 @@ Can I predict loan originations given input data? A logistic model was developed
 
 
 
-coefs first pass array([ 0.09536577, -0.11794106, -0.04090294, -0.00426806, -0.0267169 ,
-        0.07652899,  0.02245709,  0.05656126,  0.00590679, -0.00576597,
-        0.00151953,  0.00341846,  0.00266661])
-
 ![Cost Benefit](Images/Cost Benefit.png)
 
 When all variables (except Region_MT) are included the profit matrix and ROC curve are displayed below.

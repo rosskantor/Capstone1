@@ -50,6 +50,10 @@ When all variables (except Region_MT) are included the profit matrix and ROC cur
 
 ![Profit Model](Images/Figure_2.png)
 
+![Profit Model](Images/Figure_3.png)
+
+![Profit Model](Images/Figure_4.png)
+
 ![Confusion Matrix (All inputs)](Confuse.png)
 
 Conclusion

@@ -60,7 +60,7 @@ Model
 
 Result02 = Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 +  Variable09 +  Variable10 +  Variable11 +  Region_MW +  Region_NE +  Region_P +  Region_S +  Region_WE
 
-Below is a fabricated cost benefit matrix used to price successful matches and punish false positives.
+Below is a fabricated cost benefit matrix used to price successful matches and punish false positives.  An assumption is the firm can only contact so may potential borrowers per day.  Predicted rejects are potential borrowers scoring too low to contact.  Predicted acceptance are potential borrowers the firm believes have a reasonable chance for acceptance.
 
 ![Cost Benefit](CostB.png)
 

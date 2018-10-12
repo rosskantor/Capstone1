@@ -87,7 +87,9 @@ This confusion matrix tells the whole story.  At low confidence the company call
 
 Conclusion
 
-All models outperform random guesses.  Utilizing the model will allow the institution to categorize incoming leads to into more likely and less likely to perform categories.  A right to left utilization of the model (picking the most likely to succeed) will lead to better business results.
+All models outperform random guesses.  The firm lands 22.5% of all loan applications.  At a 15% confidence interval this model accurately predicts 26.5% of all applicants and at the 25% threshold it accurately predicts 31.5% of all applicants.
+
+Utilizing the model will allow the institution to categorize incoming leads to into more likely and less likely to perform categories.  A right to left utilization of the model (picking the most likely to succeed) will lead to better business results.
 
 Lessons Learned
 

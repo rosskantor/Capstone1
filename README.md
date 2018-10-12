@@ -93,6 +93,11 @@ Lessons Learned
 * Be a better programmer
 * Experience with data sets and regression modeling prior would help.
 * Predicting negatives is important too
+* Include fixed business costs
+
+Future Work
+
+* The same data set would be interesting with time components built in (i.e how long loans last in the pipeline before terminating)
 
 References:
 

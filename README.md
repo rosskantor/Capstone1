@@ -2,6 +2,8 @@ Objective
 
 Using retail loan lead data develop a model predicting borrower behavior.
 
+Develop a scoring product an end user can work with.
+
 Background
 
 Automobile finance is highly competitive.  Savvy consumers can price loans online easily filtering competitive rates into acceptable or unacceptable categories.  Lenders rank bought online leads (in addition to those generated in house) in order to contact the best potential clients. Accurate algorithms are critical to contacting the right customer.

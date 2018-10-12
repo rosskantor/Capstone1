@@ -45,7 +45,7 @@ High Level Statistics for Cleaned Data
 
 Below is an example of the distribution of loan amount to approvals.
 
-![Loan Size to Purchase](Loan Size to Purchase.png)
+![Loan Size to Purchase](Loan.png)
 
 This correlation matrix shows no one particular input is highly correlated with Result02.
 

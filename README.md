@@ -1,27 +1,27 @@
-Predicting Automotive Leads
+### Predicting Automotive Leads
 
-Objectives
+### Objectives
 
 1) Using retail loan lead data develop a model predicting borrower behavior.
 
 2) Develop a scoring product an end user can work with.
 
-Background
+### Background
 
 Automobile finance is highly competitive.  Savvy consumers can price loans online easily filtering competitive rates into acceptable or unacceptable categories.  Lenders rank bought online leads (in addition to those generated in house) in order to contact the best potential clients. Accurate algorithms are critical to contacting the right customer.
 
 Data for this project originated from a mid-size automobile finance company.  The company acts as a middle man, a broker, steering leads to financial institutions.
 
-The Set Up Problem
+### The Set Up Problem
 
-Data provided for this project is not identified by name or purpose.  All column headings are titled Variable1, Variable2, ..., Result01. An educated guess easily distinguishes a few fields.  Variable 6 is clearly a state column, Variable 3 is categorical, Variable 5 is credit score, Variable11 is probably loan amount and Variable07 may be primary borrower age.
+Data provided for this project is not identified by name or purpose.  All column headings are titled Variable1, Variable02, ..., Result01. An educated guess easily distinguishes a few fields.  Variable06 is clearly a state column, Variable03 is categorical, Variable 5 is credit score, Variable11 is probably loan amount and Variable07 may be primary borrower age.
 
 
 ![Missing Data Example](Data_load_csv.png)
 
 ![Missing Data Image](Images/MissingData.png)
 
-Feature Engineering
+### Feature Engineering
 
 Data is sparse for variables 2, 7-11.  Variable 5 is missing a few rows.
 
@@ -37,7 +37,7 @@ Data is sparse for variables 2, 7-11.  Variable 5 is missing a few rows.
 
  ![US States](US.png)
 
-High Level Statistics for Cleaned Data
+### High Level Statistics for Cleaned Data
 
 
  ![High Level Statistics](Images/HLS.png)
@@ -58,7 +58,7 @@ This correlation matrix shows no one particular input is highly correlated with 
 
 
 
-Model
+### Model
 
 Result02 = Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 +  Variable09 +  Variable10 +  Variable11 +  Region_MW +  Region_NE +  Region_P +  Region_S +  Region_WE
 
@@ -87,13 +87,13 @@ This confusion matrix tells the whole story.  At low confidence the company call
 
 ![Confusion Matrix (All inputs)](Confuse.png)
 
-Conclusion
+### Conclusion
 
 All models outperform random guesses.  The firm lands 22.5% of all loan applications.  At a 15% confidence interval this model accurately predicts 26.5% of all applicants and at the 25% threshold it accurately predicts 31.5% of all applicants.
 
 Utilizing the model will allow the institution to categorize incoming leads to into more likely and less likely to perform categories.  A right to left utilization of the model (picking the most likely to succeed) will lead to better business results.
 
-Lessons Learned
+### Lessons Learned
 
 * The model was probably underfit due to performance decreases when variables were removed.
 * Be a better programmer
@@ -101,11 +101,11 @@ Lessons Learned
 * Predicting negatives is important too
 * Include fixed business costs
 
-Future Work
+### Future Work
 
 * The same data set would be interesting with time components built in (i.e how long loans last in the pipeline before terminating)
 
-References:
+### References:
 
 Galvanize Data Solutions Folder
 

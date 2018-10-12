@@ -33,6 +33,8 @@ def X_y_columns(X_col=['Variable01', 'Variable03', 'Variable05', 'Variable07', '
        'Variable09', 'Variable10', 'Variable11', 'Region_MW',
        'Region_NE', 'Region_P', 'Region_S', 'Region_WE']
        , y_col=['Result02']):
+       """X_col: name of X's wanted
+            y_col: name of y"""
         return X_col, y_col
 
 def dict_X_cols(X=[1,3,5,7,8,10,11,'MW','S','P', 'N', 'W']):

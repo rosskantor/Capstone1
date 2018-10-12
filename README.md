@@ -1,8 +1,8 @@
-Objective
+Objectives
 
-Using retail loan lead data develop a model predicting borrower behavior.
+1) Using retail loan lead data develop a model predicting borrower behavior.
 
-Develop a scoring product an end user can work with.
+2) Develop a scoring product an end user can work with.
 
 Background
 

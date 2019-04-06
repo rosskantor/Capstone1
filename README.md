@@ -96,7 +96,6 @@ Utilizing the model will allow the institution to categorize incoming leads to i
 ### Lessons Learned
 
 * The model was probably underfit due to performance decreases when variables were removed.
-* Be a better programmer
 * Experience with data sets and regression modeling prior would help.
 * Predicting negatives is important too
 * Include fixed business costs

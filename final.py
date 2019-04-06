@@ -33,11 +33,18 @@ def X_y_columns(X_col=['Variable01', 'Variable03', 'Variable05', 'Variable07', '
        'Variable09', 'Variable10', 'Variable11', 'Region_MW',
        'Region_NE', 'Region_P', 'Region_S', 'Region_WE']
        , y_col=['Result02']):
-       """X_col: name of X's wanted
-            y_col: name of y"""
-        return X_col, y_col
+    """
+    X_col: text name of X's wanted in the form of a list []
+    y_col: text name of y variable in the form of a list []
+    returns X_col and y_col text names
+    """
+    return X_col, y_col
 
 def dict_X_cols(X=[1,3,5,7,8,10,11,'MW','S','P', 'N', 'W']):
+    """
+    Dictionary field accepting a list of key entries that will be translated to variable names
+    Returns x and y columns fed into regression model
+    """
     X_col={1:'Variable01', 3:'Variable03', 5:'Variable05', 7:'Variable07', 8:'Variable08',
     9:'Variable09', 10:'Variable10', 11:'Variable11', 'MW':'Region_MW', 'MT':'Region_MT',
     'N':'Region_NE', 'P':'Region_P', 'S':'Region_S', 'W':'Region_WE'}
@@ -48,90 +55,102 @@ def dict_X_cols(X=[1,3,5,7,8,10,11,'MW','S','P', 'N', 'W']):
 
 
 def load_csv():
-            autofinances = pd.read_csv('RossData_20181001.csv')
+    """
+    Loads raw csv, shrinks variable names, adds region lookup table and drops column names
+    returns dataframe
+    """
+    autofinances = pd.read_csv('RossData_20181001.csv')
 
-            autofinances.rename(index=str, columns= {' DateOfData': 'DateOfData', ' Variable01': 'Variable01', ' Variable02': 'Variable02'
-            , ' Variable03': 'Variable03',' Variable04' : 'Variable04',
-            ' Variable05' : 'Variable05', ' Variable06' : 'Variable06',
-            ' Variable07' : 'Variable07',' Variable08': 'Variable08', ' Variable09' : 'Variable09',
-            ' Variable10' :'Variable10', ' Variable11':'Variable11',
-            ' Result01': 'Result01', ' Result02' : 'Result02', ' Result03' : 'Result03'},inplace=True)
+    autofinances.rename(index=str, columns= {' DateOfData': 'DateOfData', ' Variable01': 'Variable01', ' Variable02': 'Variable02'
+    , ' Variable03': 'Variable03',' Variable04' : 'Variable04',
+    ' Variable05' : 'Variable05', ' Variable06' : 'Variable06',
+    ' Variable07' : 'Variable07',' Variable08': 'Variable08', ' Variable09' : 'Variable09',
+    ' Variable10' :'Variable10', ' Variable11':'Variable11',
+    ' Result01': 'Result01', ' Result02' : 'Result02', ' Result03' : 'Result03'},inplace=True)
 
-            s = pd.read_csv('StateLookup.csv')
+    s = pd.read_csv('StateLookup.csv')
 
-            autofinance = autofinances.merge(s, how = 'left',left_on = 'Variable06', right_on='State')
+    autofinance = autofinances.merge(s, how = 'left',left_on = 'Variable06', right_on='State')
 
-            autofinance.drop(['State', 'count', 'Variable06'], axis=1, inplace=True)
+    autofinance.drop(['State', 'count', 'Variable06'], axis=1, inplace=True)
 
-            return autofinance
+    return autofinance
 def load_csv_2():
+    """
+    Loads modified, imputed csv data file.
+    returns dataframe used by main function
+    """
     autofinances = pd.read_csv('RossData_imputed.csv')
     return autofinances
 
 def fill_blanks(dframe, filler=0):
+    """
+    dframe: name of dataframe containing blanks to be filled with zeros
+    filler: values to be filled in NaN cells. Default is 0.
+    returns dataframe with no blanks
+    """
     dframe.fillna(filler, inplace=True)
     return dframe
 def split_X_y_cols(autofinance, X_col, y_col):
+    """
+    autofinance: dataframe name
+    X_col: names of x columns to be split from autofinance DataFrame
+    y_col: name of y column to be split from autofinance DataFrame
+    returns X and y dataframe
+    """
     X = autofinance.ix[:, X_col]
     y = autofinance.ix[:, y_col]
     return X, y
 def getdummies(df):
+    """
+    df: name of dataframe containing a Region column to receive dummy variables
+    returns dataframe with regional dummy variables
+    """
     afdummies=pd.get_dummies(df,columns=['Region'])
     return afdummies
 def splitapply(X, y):
+    """
+    X: DataFrame containing X columns
+    y: DataFrame containing y column
+    This function creates training and test tables
+    returns X and y training and test dataframes
+    """
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     return X_train, X_test, y_train, y_test
-def vif():
+def vif(r):
+    """
+    r: DataFrame to be tested for autocorrleation
+    used to test for autocorrelation
+    """
     y, X = dmatrices('Result02 ~ Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 +  Variable09 +  Variable10 +  Variable11 +  Region_MW +  Region_NE +  Region_P + Region_S +  Region_WE', r, return_type='dataframe')
     vif = pd.DataFrame()
     vif["VIF Factor"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
     vif["features"] = X.columns
 def costbenefit():
+    """
+    Builds cost benefit matrix
+    returns 2X2 cost benefit matrix
+    """
     cb = np.array([[660, -120], [0, 0]])
     return cb
-def k_fold_linear(X_train, y_train, X_col):
-    ''' Returns error for k-fold cross validation. '''
-    err_linear, index, num_folds = 0, 0, 10
-    kf = KFold(n_splits= num_folds)
-    error = []
-    probabilities = []
-    logistic = LogisticRegression()
-    y = np.array(np.ravel(y_train)).astype(int)
-    for train, test in kf.split(X_train):
-        logistic.fit(X_train.iloc[train], y_train.iloc[train])
-        pred = logistic.predict(X_train.iloc[test])
-        probabilities.append(logistic.predict_proba(X_train.iloc[test]))
-        #r2 = r2_score(y, pred, multioutput='variance_weighted')
-        #adj_r2(X_train, len(X_col), r2)
-        error.append(rmse(pred, y[test]))
-
-    return np.mean(error), probabilities
-
-def rmse(theta, thetahat):
-	''' Compute Root-mean-squared-error '''
-	return np.sqrt(np.mean((theta - thetahat) ** 2))
 
 def standardize(X_train, X_test, X_col_input):
+    """
+    X_train: training DataFrame
+    X_test: testing DataFrame
+    X_col_input: name of X columns to be standardized
+    returns normalized X train and test dataframes
+    """
     scaler = StandardScaler().fit(X_train)
     X_train_1 = pd.DataFrame( data=scaler.transform(X_train), columns = X_col_input)
     X_test_1 = pd.DataFrame( data = scaler.transform(X_test), columns = X_col_input)
 
     return X_train_1, X_test_1
 
-def impute_df(df, algorithm, cols):
-    """Returns completed dataframe given an imputation algorithm"""
-    return pd.DataFrame(data=algorithm.fit_transform(df), columns=cols, index=df.index)
-
-def main(X_col_input, y_col_input):
-    autofinance = load_csv()
-
-def determine_impute(df):
-    """Iterates various imputation methods to find lower MSE"""
-    algorithms = [SimpleFill(), KNN(1), KNN(2), KNN(3), KNN(
-        4), KNN(5), IterativeSVD(), IterativeImputer()]
-    RMSE_dict = {}
-    df_incomplete = create_test_df(df, 0.1)
 def splitdf (df):
+    """
+    df: name of DataFrame to be imputed per KNN(5)
+    """
     dfReg = pd.DataFrame(df.Region)
     df1 = pd.DataFrame(data=KNN(5).fit_transform(df.iloc[:10000].select_dtypes(exclude='object')), columns=df.iloc[:10000].select_dtypes(exclude='object').columns, index=df.iloc[:10000].select_dtypes(exclude='object').index)
     df2 = pd.DataFrame(data=KNN(5).fit_transform(df.iloc[10000:20000].select_dtypes(exclude='object')), columns=df.iloc[10000:20000].select_dtypes(exclude='object').columns, index=df.iloc[10000:20000].select_dtypes(exclude='object').index)
@@ -140,11 +159,7 @@ def splitdf (df):
     y2 = y.append(df3)
     df = y2.merge(dfReg, left_index=True, right_index=True)
     df.to_csv('RossData_imputed.csv')
-def missingdata(df):
-    a = msno.matrix(df, figsize=(16,7), fontsize=(8))
-    a.plot()
-    plt.savefig('MissingData' + '.png')
-    plt.show()
+
 def roc_curve(probabilities, labels):
     '''
     INPUT: numpy array, numpy array
@@ -152,8 +167,8 @@ def roc_curve(probabilities, labels):
 
     Take a numpy array of the predicted probabilities and a numpy array of the
     true labels.
-    Return the True Positive Rates, False Positive Rates and Thresholds for the
-    ROC curve.
+    Return the True Positive Rates, False Positive Rates, Thresholds for the
+    ROC curve and the profit matrix
     '''
     cb = costbenefit()
     thresholds = np.sort(probabilities)
@@ -191,17 +206,17 @@ def roc_curve(probabilities, labels):
 
     return tprs, fprs, thresholds.tolist(), profit
 
-def calculate_probabilities(X_train_1, y_train, X_test_1):
-
-    y = np.array(np.ravel(y_train)).astype(int)
-    clf = LogisticRegressionCV(cv=5, random_state=0,multi_class='multinomial').fit(X_train_1, y)
-    probs = clf.predict_proba(X_test_1)
-    predict = clf.predict(X_test_1)
-    coefs = clf.coef_
-    probreturn = probs[:,1]
-    return coefs, probreturn
 
 def plotter (y_test, X_cols, y_Cols, figname, probreturn, x_short_identifier):
+    """
+    y_test: y test dataframe
+    X_cols: name of x columns
+    y_Cols: name of y column
+    figname: name of plot (probably used)
+    probreturn: list of probabilities to be passed to grapher
+    x_short_identifier: keys identifying X column short names
+    returns profit matrix and graph
+    """
     tpr, fpr, thresholds , profit= roc_curve(probreturn, y_test)
 
     fig, ax1 = plt.subplots(figsize=(13, 6))
@@ -221,42 +236,24 @@ def plotter (y_test, X_cols, y_Cols, figname, probreturn, x_short_identifier):
     plt.show()
     return  profit
 
-def calculate_probabilities_2(X_train, X_test, y_train, y_test, X_cols, y_Cols, figname='Nothing'):
-
-    y = np.array(np.ravel(y_train)).astype(int)
-    clf = LogisticRegressionCV(cv=5, random_state=0,multi_class='multinomial').fit(X_train, y)
-    probs = clf.predict_proba(X_train)
-
-    tpr, fpr, thresholds , profit= roc_curve(probs[:,1], y_train)
-
-    return profit, X_cols
-def adj_r2(X, predictors, r2):
-	sampleSize = len(X)
-	num = (1-r2)*(sampleSize - 1)
-	den = sampleSize - predictors - 1
-	return 1 - (num/den)
-
-def generator(X_cols):
-    stop = len(X_cols)
-    A = []
-    for i in range(1,stop):
-        A.append(list(combinations(X_cols, i)))
-    return A
-
-def stackdf (df):
-
-    for i, alg in enumerate(algorithms):
-        X_complete = impute_df(df_incomplete, alg)
-        alg_rmse = np.sqrt(mean_squared_error(df, X_complete))
-        RMSE_dict[str(i)+"_"+alg.__class__.__name__] = alg_rmse # This is a fancy trick to get the class names!
-    return df.from_dict(RMSE_dict, orient='index', columns=['RMSE']).sort_values(by='RMSE') # Return sorted DF
-
 def model(X_train, y_train, X_test):
+    """
+    X_train: X training dataframe
+    y_train: y training DataFrame
+    X_test: X test dataframe
+    returns list of probabilities for each test value
+    """
     y = np.array(np.ravel(y_train)).astype(int)
     clf = LogisticRegressionCV(cv=5, random_state=0,multi_class='multinomial').fit(X_train, y)
     probs = clf.predict_proba(X_test)
     return probs[:, 1]
 def confusionmatrix(df, probs, threshold=[0.15, 0.25, 0.45, 0.70]):
+    """
+    df: y test DataFrame
+    probs: probabilities for success
+    threshold: cut of points used to measure TP and FP rates
+    returns confusion matrix
+    """
     df['Probs'] = probs
     cfmatrix = []
     for i in range(len(threshold)):
@@ -276,12 +273,20 @@ def confusionmatrix(df, probs, threshold=[0.15, 0.25, 0.45, 0.70]):
     return cfmatrix
 
 def regressionoutput(X_train, y_train):
+    """
+    Does not work as laid out.  Should return logit regression summary.
+    """
     X = X_train
     X_const = add_constant(X, prepend=True)
     y = y_train
     logit_model = Logit(y, X_const).fit()
     print(logit_model.summary())
 def main(x_short_identifier,figname='Default'):
+    """
+    x_short_identifier: keys identifiers in list [] format pointing to X col names
+    figname: name of plot figure name defaulted to 'Defualt'
+    returns confusion matrix
+    """
     X_col_input, y_col_input = dict_X_cols(x_short_identifier)
     cb = costbenefit()
     autofinance = load_csv_2()
@@ -291,23 +296,7 @@ def main(x_short_identifier,figname='Default'):
     X, y = split_X_y_cols(af_mod, X_col, y_col)
     X_train, X_test, y_train, y_test = splitapply(X, y)
     X_train_1, X_test_1=standardize(X_train, X_test, X_col_input)
-    probreturn = model(X_train, y_train, X_test)
+    probreturn = model(X_train_1, y_train, X_test_1)
     plotter(y_test, X_col, y_col, figname, probreturn, x_short_identifier)
-    #regressionoutput(X_train, y_train)
     cfmatrix = confusionmatrix(y_test, probreturn)
     return cfmatrix
-
-    """pd.DataFrame(data=KNN(5).fit_transform(df.iloc[:10000].select_dtypes(exclude='object')), columns=df.iloc[:10000].select_dtypes(exclude='object').columns, index=df.iloc[:10000].select_dtypes(exclude='object').index)"""
-
-    """'Variable01, Variable02, Variable03, Variable04,
-       Variable05, Variable07, Variable08, Variable09,
-       Variable10, Variable11,
-       Region_MT, Region_MW, Region_NE, Region_P, Region_PL,
-       Region_S, Region_WE'
-
-        y, X = dmatrices('Result02 ~ Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 +  Variable09 +  Variable10 +  Variable11 +  Region_MW +  Region_NE +  Region_P +  Region_S +  Region_WE', r, return_type='dataframe')
-
-        y, X = dmatrices('Result02 ~ Variable01, Variable02', r, return_type='dataframe'
-
-        results1 = smf.logit('Result02 ~ Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 +  Variable09 +  Variable10 +  Variable11 +  Region_MW +  Region_NE +  Region_P +  Region_PL + Region_S +  Region_WE', data=r).fit()
-       """

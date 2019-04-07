@@ -29,6 +29,8 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.utils import resample
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score
+from keras import models, layers
+
 class regress():
     def __init__(self):
         self.scaler = StandardScaler()
@@ -230,39 +232,42 @@ class regress():
         self.tree_precision = precision_score(self.t_pred, self.y_test.values.ravel())
         self.tree_recall = recall_score(self.t_pred, self.y_test.values.ravel())
     def resample(self):
-        majority = self.autofinance[self.autofinance.Result02==0]
-        minority = self.autofinance[self.autofinance.Result02==1]
+        self.majority = self.autofinance[self.autofinance.Result02==0]
+        self.minority = self.autofinance[self.autofinance.Result02==1]
 
         df_minority_upsampled = resample(self.autofinance[self.autofinance.Result02==1],
                                       replace=True,     # sample with replacement
-                                      n_samples=len(majority),    # to match majority class
+                                      n_samples=len(self.majority),    # to match majority class
                                       random_state=123)
 
-        self.autofinance = pd.concat([df_minority_upsampled, majority])
-    def confusionmatrix(self, df, probs, threshold=[0.15, 0.25, 0.45, 0.70]):
-        """
-        df: y test DataFrame
-        probs: probabilities for success
-        threshold: cut of points used to measure TP and FP rates
-        returns confusion matrix
-        """
-        df['Probs'] = probs
-        cfmatrix = []
-        for i in range(len(threshold)):
-            dfIn = df[df['Probs'] > threshold[i]]
-            dfOut = df[df['Probs'] <= threshold[i]]
+        self.autofinance = pd.concat([df_minority_upsampled, self.majority])
+    def neural_net(self):
+        # Start a Neural Network
+        network = models.Sequential()
 
-            TP = int(dfIn.iloc[:,0].sum())
-            FP = int(len(dfIn) - TP)
+        # Add fully connected layer with a Relu activation function
 
-            FN = int(dfOut.iloc[:,0].sum())
-            TF = int(len(dfOut) - FN)
-            tup = TP, FP, FN, TF
-            cfmatrix.append(tup)
+        network.add(layers.Dense(units=16, activation='relu', \
+        input_shape=(16,)))
 
-            del dfIn
-            del dfOut
-        return cfmatrix
+        #Add fully connected layer with a Relu activation function
+        network.add(layers.Dense(units=16, activation='relu'))
+
+        #Add fully connected layer with a Relu activation function
+        network.add(layers.Dense(units=1, activation='sigmoid'))
+
+        #Compile Neural Network
+        network.compile(loss='binary_crossentropy', #Cross-entropy \
+            optimizer='rmsprop', # Root Mean Square Propogation \
+            metrics=['accuracy'] #Accuracy performance metric
+            )
+
+        history = network.fit(self.X_train, #Features
+                            self.y_train, #Target
+                            epochs = 25 , #Number of iterations
+                            verbose = 1, #Print Success after each epoch
+                            batch_size = 100, #Number of observations per batch
+                            validation_data = (self.X_test, self.y_test)) #Test data
 
 if __name__=="__main__":
     r = regress()
@@ -274,3 +279,4 @@ if __name__=="__main__":
     r.splitapply()
     r.model_2()
     r.tree()
+    r.neural_net()

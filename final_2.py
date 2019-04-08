@@ -241,6 +241,11 @@ class regress():
                                       random_state=123)
 
         self.autofinance = pd.concat([df_minority_upsampled, self.majority])
+    def down_sample(self):
+        self.minority_2 = self.autofinance[self.autofinance.Result02==1]
+        self.majority_2 = self.autofinance[self.autofinance.Result02==0]
+        self.majority_2 = self.majority_2.iloc[:len(self.minority_2)]
+        self.autofinance = pd.concat([self.majority_2, self.minority_2])
     def neural_net(self):
         # Start a Neural Network
         network = models.Sequential()
@@ -262,12 +267,12 @@ class regress():
             metrics=['accuracy'] #Accuracy performance metric
             )
 
-        history = network.fit(self.X_train, #Features
+        history = network.fit(self.scaler.transform(self.X_train), #Features
                             self.y_train, #Target
                             epochs = 25 , #Number of iterations
                             verbose = 1, #Print Success after each epoch
                             batch_size = 100, #Number of observations per batch
-                            validation_data = (self.X_test, self.y_test)) #Test data
+                            validation_data = (self.scaler.transform(self.X_test), self.y_test)) #Test data
 
 if __name__=="__main__":
     r = regress()
@@ -279,4 +284,4 @@ if __name__=="__main__":
     r.splitapply()
     r.model_2()
     r.tree()
-    r.neural_net()
+    #r.neural_net()

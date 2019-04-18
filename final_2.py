@@ -25,7 +25,7 @@ class regress():
         Loads modified, imputed csv data file.
         returns dataframe used by main function
         """
-        self.autofinance = pd.read_csv('RossData_imputed.csv')
+        self.autofinance = pd.read_csv('../data/RossData_imputed.csv')
 
     def fill_blanks(self, filler=0):
         """

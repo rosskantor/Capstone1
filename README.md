@@ -17,7 +17,7 @@ Data for this project originated from a mid-size automobile finance company.  Th
 Data provided for this project is not identified by name or purpose.  All column headings are titled Variable1, Variable02, ..., Result01. An educated guess easily distinguishes a few fields.  Variable06 is clearly a state column, Variable03 is categorical, Variable 5 is credit score, Variable11 is probably loan amount and Variable07 may be primary borrower age.
 
 
-![Missing Data Example](Data_load_csv.png)
+![Missing Data Example](Images/Data_load_csv.png)
 
 ![Missing Data Image](Images/MissingData.png)
 
@@ -35,7 +35,7 @@ Data is sparse for variables 2, 7-11.  Variable 5 is missing a few rows.
 
  States were divided into region six regions each of which was assigned to a dummy classification.
 
- ![US States](US.png)
+ ![US States](Images/US.png)
 
 ### High Level Statistics for Cleaned Data
 
@@ -47,7 +47,7 @@ Data is sparse for variables 2, 7-11.  Variable 5 is missing a few rows.
 
 Below is an example of the distribution of loan amount to approvals.
 
-![Loan Size to Purchase](Loan.png)
+![Loan Size to Purchase](Images/Loan.png)
 
 This correlation matrix shows no one particular input is highly correlated with Result02.
 
@@ -64,28 +64,28 @@ Result02 = Variable01  +  Variable03 + Variable05 +  Variable07 +  Variable08 + 
 
 Below is a fabricated cost benefit matrix used to price successful matches and punish false positives.  An assumption is the firm can only contact so may potential borrowers per day.  Predicted rejects are potential borrowers scoring too low to contact.  Predicted acceptance are potential borrowers the firm believes have a reasonable chance for acceptance.
 
-![Cost Benefit](CostB.png)
+![Cost Benefit](Images/CostB.png)
 
 Results
 
 When all variables (except Region_MT) are included the profit matrix and ROC curve are displayed below.
 
 
-![Profit Model](MaxProf1.png)
+![Profit Model](Images/MaxProf1.png)
 
 Below is the same model as above less regions.
 
-![Profit Model](MaxProf2.png)
+![Profit Model](Images/MaxProf2.png)
 
 Below is a model with even fewer features.
 
-![Profit Model](MaxProf3.png)
+![Profit Model](Images/MaxProf3.png)
 
 Confusion Matrix (All inputs p = [0.15, 0.25, 0.45. 0.70])
 
 This confusion matrix tells the whole story.  At low confidence the company calls many leads, accepting a false positive to true positive ratio of 2:1.  This leads to a lot of time (calling customers, preparing documentation, following up) wasted on customers who will never ultimately agree to a loan.  It also leads to your most profitable business.
 
-![Confusion Matrix (All inputs)](Confuse.png)
+![Confusion Matrix (All inputs)](Images/Confuse.png)
 
 ### Conclusion
 

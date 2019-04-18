@@ -223,7 +223,3 @@ if __name__=="__main__":
     r.down_sample()
     r.split_X_y_cols()
     #r.model_selector()
-    """r.splitapply()
-    r.model_2()
-    r.tree()
-    r.neural_net()"""

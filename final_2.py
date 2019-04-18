@@ -106,9 +106,6 @@ class regress():
 
     def model(self):
         """
-        X_train: X training dataframe
-        y_train: y training DataFrame
-        X_test: X test dataframe
         returns list of probabilities for each test value
         """
         y = np.array(np.ravel(self.y_train)).astype(int)
@@ -120,9 +117,6 @@ class regress():
         self.log_precision = precision_score(self.preds, self.y_test)
     def model_2(self):
         """
-        X_train: X training dataframe
-        y_train: y training DataFrame
-        X_test: X test dataframe
         returns list of probabilities for each test value
         """
         y = np.array(np.ravel(self.y_train)).astype(int)
@@ -134,6 +128,9 @@ class regress():
         self.log_recall = recall_score(self.preds, self.y_test)
         self.log_precision = precision_score(self.preds, self.y_test)
     def tree(self):
+        """
+        Train, predict and measure randomforest classifier
+        """
         self.t = RandomForestClassifier(n_estimators=400, oob_score=True)
         self.t.fit(self.X_train, self.y_train.values.ravel())
         self.t_pred= self.t.predict(self.X_test)
@@ -141,6 +138,9 @@ class regress():
         self.tree_precision = precision_score(self.t_pred, self.y_test.values.ravel())
         self.tree_recall = recall_score(self.t_pred, self.y_test.values.ravel())
     def model_selector(self):
+        """
+        Academic attempt at building a pipeline interfacing with a gridsearch object.
+        """
         np.random.seed(0)
         preprocess = FeatureUnion([('std', StandardScaler()), ('pca', PCA())])
         pipe = Pipeline([('preprocess', preprocess),
@@ -151,6 +151,9 @@ class regress():
         clf = GridSearchCV(pipe, search_space, cv=5, verbose=0, n_jobs=-1)
         clf.fit(self.X, self.y)
     def resample(self):
+        """
+        Upsample minority class to the same length as the majority class. Does not include random samples.
+        """
         self.majority = self.autofinance[self.autofinance.Result02==0]
         self.minority = self.autofinance[self.autofinance.Result02==1]
 
@@ -161,11 +164,17 @@ class regress():
 
         self.autofinance = pd.concat([df_minority_upsampled, self.majority])
     def down_sample(self):
+        """
+        Downsample majority class to the same length as the majority class.  Does not include random samples.
+        """
         self.minority_2 = self.autofinance[self.autofinance.Result02==1]
         self.majority_2 = self.autofinance[self.autofinance.Result02==0]
         self.majority_2 = self.majority_2.iloc[:len(self.minority_2)]
         self.autofinance = pd.concat([self.majority_2, self.minority_2])
     def neural_net(self):
+        """
+        Train a basic neural net model.
+        """
         # Start a Neural Network
         network = models.Sequential()
 

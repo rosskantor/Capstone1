@@ -1,12 +1,9 @@
 import pandas as pd
 import numpy as np
-import itertools as it
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-import missingno as msno
-from sklearn.model_selection import KFold
 from sklearn.linear_model import LogisticRegression
 from fancyimpute import KNN
 from sklearn.linear_model import LogisticRegressionCV

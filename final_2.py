@@ -1,36 +1,24 @@
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
-from statsmodels.tools import add_constant
-from statsmodels.discrete.discrete_model import Logit
 import pandas as pd
-import seaborn as sns
 import numpy as np
-from statsmodels.stats.diagnostic import het_breuschpagan
-from statsmodels.stats.diagnostic import het_goldfeldquandt
 import itertools as it
-
-from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import Lasso
 import missingno as msno
-from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold
-from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
-from fancyimpute import SimpleFill, KNN,  IterativeSVD, IterativeImputer
-from sklearn.utils import shuffle
+from fancyimpute import KNN
 from sklearn.linear_model import LogisticRegressionCV
-import matplotlib.pyplot as plt
-from sklearn.metrics import r2_score
-from itertools import combinations
+from sklearn.decomposition import PCA
 from patsy import dmatrices
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.utils import resample
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from keras import models, layers
-
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.wrappers.scikit_learn import KerasClassifier
 class regress():
     def __init__(self):
         self.scaler = StandardScaler()
@@ -119,82 +107,6 @@ class regress():
         self.df = y2.merge(dfReg, left_index=True, right_index=True)
         self.df.to_csv('RossData_imputed.csv')
 
-    def roc_curve(self, probabilities, labels):
-        '''
-        INPUT: numpy array, numpy array
-        OUTPUT: list, list, list
-
-        Take a numpy array of the predicted probabilities and a numpy array of the
-        true labels.
-        Return the True Positive Rates, False Positive Rates, Thresholds for the
-        ROC curve and the profit matrix
-        '''
-        self.cb = costbenefit()
-        self.thresholds = np.sort(probabilities)
-
-        self.tprs = []
-        self.fprs = []
-        self.profit = []
-
-        self.num_positive_cases = labels.sum()
-        self.num_negative_cases = len(labels) - self.num_positive_cases
-
-        for self.threshold in self.thresholds:
-            # With this threshold, give the prediction of each instance
-            predicted_positive = probabilities >= threshold
-            # Calculate the number of correctly predicted positive cases
-            true_positives = np.sum(predicted_positive * labels.iloc[:, 0])
-            # Calculate the number of incorrectly predicted positive cases
-            false_positives = np.sum(predicted_positive) - true_positives
-            # Calculate the True Positive Rate
-            tpr = true_positives / float(self.num_positive_cases)
-            # Calculate the False Positive Rate
-            fpr = false_positives / float(self.num_negative_cases)
-            # Calculate predicted negative cases
-            profit.append((true_positives * cb[0][0]) +  (false_positives * cb[0][1]))
-            #Populate TP
-
-            #Populate FP
-
-            #Populate FN
-
-            #Populate TN
-
-            self.fprs.append(fpr)
-            self.tprs.append(tpr)
-
-        return tprs, fprs, thresholds.tolist(), profit
-
-
-    def plotter (self, y_test, X_cols, y_Cols, figname, probreturn, x_short_identifier):
-        """
-        y_test: y test dataframe
-        X_cols: name of x columns
-        y_Cols: name of y column
-        figname: name of plot (probably used)
-        probreturn: list of probabilities to be passed to grapher
-        x_short_identifier: keys identifying X column short names
-        returns profit matrix and graph
-        """
-        tpr, fpr, thresholds , profit= roc_curve(probreturn, y_test)
-
-        fig, ax1 = plt.subplots(figsize=(13, 6))
-        plt.rcParams.update({'font.size': 18})
-        ax2 = ax1.twinx()
-        ax3 = ax1.twinx()
-        ax1.plot(fpr, tpr, 'b')
-        ax2.plot(thresholds, profit, 'r')
-        x = np.linspace(0, 1, len(thresholds))
-        ax3.plot(x,x, linestyle='--')
-        ax1.set_xlabel("False Positive Rate (1 - Specificity)")
-        ax1.set_ylabel("True Positive Rate (Sensitivity, Recall)", color = 'b')
-        ax2.set_ylabel("Profit", color='r')
-        ax3.set_yticklabels([])
-        plt.title("ROC and Profitability plot of features \n " + str(x_short_identifier) + " Max Profit " + str(max(profit)))
-        plt.savefig(figname + '.png')
-        plt.show()
-        return  profit
-
     def model(self):
         """
         X_train: X training dataframe
@@ -231,6 +143,16 @@ class regress():
         self.tree_accuracy = accuracy_score(self.t_pred, self.y_test.values.ravel())
         self.tree_precision = precision_score(self.t_pred, self.y_test.values.ravel())
         self.tree_recall = recall_score(self.t_pred, self.y_test.values.ravel())
+    def model_selector(self):
+        np.random.seed(0)
+        preprocess = FeatureUnion([('std', StandardScaler()), ('pca', PCA())])
+        pipe = Pipeline([('preprocess', preprocess),
+                        ('classifier', LogisticRegression())])
+        search_space = [{'preprocess__pca__n_components': [1,2,3,4,5,6,7,8,9,10],
+                        'classifier__penalty': ['l1', 'l2'],
+                        'classifier__C': np.logspace(0 , 4, 10)}]
+        clf = GridSearchCV(pipe, search_space, cv=5, verbose=0, n_jobs=-1)
+        clf.fit(self.X, self.y)
     def resample(self):
         self.majority = self.autofinance[self.autofinance.Result02==0]
         self.minority = self.autofinance[self.autofinance.Result02==1]
@@ -252,11 +174,10 @@ class regress():
 
         # Add fully connected layer with a Relu activation function
 
-        network.add(layers.Dense(units=16, activation='relu', \
-        input_shape=(16,)))
+        network.add(layers.Dense(units=300, activation='relu', input_shape=(16,)))
 
         #Add fully connected layer with a Relu activation function
-        network.add(layers.Dense(units=16, activation='relu'))
+        network.add(layers.Dense(units=300, activation='relu'))
 
         #Add fully connected layer with a Relu activation function
         network.add(layers.Dense(units=1, activation='sigmoid'))
@@ -266,22 +187,46 @@ class regress():
             optimizer='rmsprop', # Root Mean Square Propogation \
             metrics=['accuracy'] #Accuracy performance metric
             )
+        """
+        callbacks = [EarlyStopping(monitor='val_loss', patience=4),
+                        ModelCheckpoint(filepath='best_model.h5',
+                                        monitor='val_loss',
+                                        save_best_only=True)]
 
         history = network.fit(self.scaler.transform(self.X_train), #Features
                             self.y_train, #Target
                             epochs = 25 , #Number of iterations
                             verbose = 1, #Print Success after each epoch
                             batch_size = 100, #Number of observations per batch
+                            callbacks=callbacks, #Adding early stop and save best model
                             validation_data = (self.scaler.transform(self.X_test), self.y_test)) #Test data
+
+        self.nn_preds = network.predict(self.scaler.transform(self.X_test))
+        self.nn_probs = network.predict_proba(self.scaler.transform(self.X_test))
+
+        print('The accuracy of the model is ' + str(accuracy_score(np.where(self.nn_preds>=0.50,1,0),self.y_test)))"""
+
+        kc = KerasClassifier(build_fn=network, verbose=0)
+
+        epochs = [5,10]
+        batches = [5,10,100]
+        optimizers = ['rmsprop', 'adam']
+
+        hyperparameters = dict(optimizer=optimizers, epochs=epochs, batch_size=batches)
+
+        grid = GridSearchCV(estimator=kc, param_grid=hyperparameters)
+
+        self.grid_result = grid.fit(self.scaler.transform(self.X_train), self.y_train)
 
 if __name__=="__main__":
     r = regress()
     r.load_csv_2()
     r.fill_blanks()
     r.getdummies()
-    r.resample()
+    r.down_sample()
     r.split_X_y_cols()
-    r.splitapply()
+    #r.model_selector()
+    """r.splitapply()
     r.model_2()
     r.tree()
-    #r.neural_net()
+    r.neural_net()"""
